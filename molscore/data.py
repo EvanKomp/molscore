@@ -21,13 +21,11 @@ class DataHandler:
         
         if restart:
             shutil.rmtree(root, ignore_errors=True)
-            self._initiallize()
+            self._initialize()
         elif not self.initialized:
-            self.initialize()
+            self._initialize()
         else:
-            pass
-        
-        self.metadata = json.load(self.root+'/metadata.json')
+            self.metadata = json.load(self.root+'/metadata.json')
         return
     
     @property
@@ -47,6 +45,7 @@ class DataHandler:
         self.metadata = {
             'names':{}
         }
+        self._save_metadata()
         return
     
     def _save_metadata(self):
@@ -139,10 +138,10 @@ class Dataset:
                 cansmiles.append(smiles)
             except:
                 if not self.raise_smiles_errors:
-                    warnings.warn(f'"{instring}" could not be connicalized, skipping')
+                    warnings.warn(f'"{instring}" could not be connonicalized, skipping')
                     pass
                 else:
-                    raise ValueError(f'"{instring}" could not be connicalized')
+                    raise ValueError(f'"{instring}" could not be connonicalized')
         self._data = numpy.array(cansmiles)
         return
     
