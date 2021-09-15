@@ -7,7 +7,7 @@ import shutil
 import warnings
 
 import numpy
-import rdkit.Chem
+import rdkit.Chem # type: ignore
 
 from typing import Union, Iterable, Type
 
@@ -25,7 +25,9 @@ class DataHandler:
         elif not self.initialized:
             self._initialize()
         else:
-            self.metadata = json.load(self.root+'/metadata.json')
+            file = open(self.root+'/metadata.json', 'r')
+            self.metadata = json.load(file)
+            file.close()
         return
     
     @property
@@ -49,14 +51,16 @@ class DataHandler:
         return
     
     def _save_metadata(self):
-        json.dump(self.metadata, self.root+'/metadata.json')
+        file = open(self.root+'/metadata.json', 'w')
+        json.dump(self.metadata, file)
+        file.close
         return
     
     @property
     def dataset_ids(self):
         return list(self.metadata['names'].values())
     
-    def resgister_data(self, dataset: Dataset):
+    def resgister_data(self, dataset: 'Dataset'):
         # get newest id to assign to data
         if len(self.dataset_ids) < 1:
             dataset_id = 0
@@ -94,7 +98,7 @@ class Dataset:
         self._data_id = None
         
         # format and set the data
-        self.raise_smiles_error = raise_smiles_error
+        self.raise_smiles_errors = raise_smiles_errors
         self.data = data
         return
     
