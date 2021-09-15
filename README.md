@@ -1,4 +1,4 @@
-# molscore ![ci](https://github.com/EvanKomp/molscore/actions/workflows/ci.yml/badge.svg)
+# molscore ![ci](https://github.com/EvanKomp/molscore/actions/workflows/ci.yml/badge.svg) ![Codecov](https://img.shields.io/codecov/c/github/evankomp/molscore)
 
 Provide metrics on the depth and breadth of a set of molecules.
 
