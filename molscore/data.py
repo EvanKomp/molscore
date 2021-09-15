@@ -56,7 +56,7 @@ class DataHandler:
     def dataset_ids(self):
         return list(self.metadata['names'].values())
     
-    def _register_data(self, dataset: Dataset):
+    def resgister_data(self, dataset: Dataset):
         # get newest id to assign to data
         if len(self.dataset_ids) < 1:
             dataset_id = 0
@@ -82,7 +82,7 @@ class Dataset:
         self,
         data: Iterable,
         name: str = None,
-        data_handler: DataHandler = None
+        data_handler: DataHandler = None,
         raise_smiles_errors: bool = True
     ):
         self.name = name
@@ -99,7 +99,7 @@ class Dataset:
         return
     
     def register(self):
-        self._data_id = self.handler._register_dataset(self)
+        self._data_id = self.handler.resgister_dataset(self)
         return
     
     @property
