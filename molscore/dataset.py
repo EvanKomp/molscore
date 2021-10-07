@@ -49,7 +49,7 @@ class Dataset:
         return
     
     def unregister(self):
-        self.handler.unregister_dataset(_dataset_id)
+        self.handler.unregister_dataset(self._dataset_id)
         return
     
     @property
