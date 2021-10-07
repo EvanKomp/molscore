@@ -33,7 +33,7 @@ Transforms one or more datasets into a dimensionality that allows them to be com
 *Inputs*: Datasets to use, mapping parameters
 __Methods__
 - `map`: Map the data
-- - `inputs`: optional reference map to use instead of fitting to data
+- - *Inputs*: optional reference map to use instead of fitting to data
 - - *Outputs*: list, mapped representation of the datasets
 - `register`: Save the mapped representation of the data
 - `get_default_handler`: Return the data handler to be used if none are specified.
@@ -44,7 +44,7 @@ __Attributes__
 
 `molscore.analyze.Scorer`
 Compare mapped datasets
-*Inputs*: Datasets to use, maps to use
+*Inputs*: maps to use as reference
 __Methods__
-- `score_breadth`: returns the breadth score
-- `
+- `score_breadth`: returns the breadth score for a 
+- `score_depth`: returns the depth score for a dataset
