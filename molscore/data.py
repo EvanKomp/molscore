@@ -10,6 +10,8 @@ from typing import Union, Iterable, Type
 import numpy
 import rdkit.Chem # type: ignore
 
+import molscore
+
 logger = logging.getLogger(__name__) 
 
 class DataHandler:
@@ -374,7 +376,7 @@ class Dataset:
     @staticmethod
     def get_default_handler():
         """Return the default handler that will be used if none are given."""
-        return DataHandler()
+        return molscore.DEFAULT_HANDLER
         
     @classmethod
     def load(cls, handler: DataHandler, identifier: Union[str, int]):
