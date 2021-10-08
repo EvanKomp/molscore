@@ -22,7 +22,7 @@ class DataHandler:
         
         if restart:
             shutil.rmtree(root, ignore_errors=True)
-            logger.info(f'Existing database at `{root}` removed,')
+            logging.info(f'Existing database at `{root}` removed,')
             self._initialize()
         elif not self.initialized:
             self._initialize()
@@ -30,7 +30,7 @@ class DataHandler:
             file = open(self.root+'/metadata.json', 'r')
             self.metadata = json.load(file)
             file.close()
-            logger.info(f'Existing database loaded at `{root}`.')
+            logging.info(f'Existing database loaded at `{root}`.')
         return
     
     @property
@@ -44,21 +44,21 @@ class DataHandler:
     
     def _initialize(self):
         # create the folder
-        os.makedir(self.root)
-        os.makedir(self.root+'/data')
+        os.mkdir(self.root)
+        os.mkdir(self.root+'/data')
         # and the metadata
         self.metadata = {
             'names':{}
         }
         self._save_metadata()
-        logger.info(f'Created database at `{self.root}`.')
+        logging.info(f'Created database at `{self.root}`.')
         return
     
     def _save_metadata(self):
         file = open(self.root+'/metadata.json', 'w')
         json.dump(self.metadata, file)
         file.close()
-        logger.debug(f'Metadata updated. Current state: \n{self.metadata}')
+        logging.debug(f'Metadata updated. Current state: \n{self.metadata}')
         return
     
     @property
@@ -69,7 +69,7 @@ class DataHandler:
     def dataset_names(self):
         return list(self.metadata['names'].values())
     
-    def register_data(self, dataset: Dataset):
+    def register_dataset(self, dataset: Dataset):
         # get newest id to assign to data
         if len(self.dataset_ids) < 1:
             dataset_id = 0
@@ -78,7 +78,7 @@ class DataHandler:
             # get smallest id not in use
             dataset_id = min(
                 set(
-                    range(largest_id+1)
+                    range(largest_id+2)
                 ) - set(
                     self.dataset_ids
                 )
@@ -99,8 +99,8 @@ class DataHandler:
         # update metadata
         dataset._save_data_to_file(self._get_path_to_dataset(dataset_id))
         self.metadata['names'][dataset_id] = name
-        logger.info(f'Dataset registered with id and name: `{dataset_id}`, `{name}`.')
-        logger.debug(f'Data in dataset `{dataset._dataset_id}`: \n {dataset.data}')
+        logging.info(f'Dataset registered with id and name: `{dataset_id}`, `{name}`.')
+        logging.debug(f'Data in dataset `{dataset_id}`: \n {dataset.data}')
         self._save_metadata()
         return dataset_id
     
@@ -109,17 +109,19 @@ class DataHandler:
             raise ValueError(f'Cannot update dataset, it is not registered.')
         else:
             dataset._save_data_to_file(self._get_path_to_dataset(dataset._dataset_id))
-            logger.info(f'Dataset `{dataset._dataset_id}` updated.')
-            logger.debug(f'Data in dataset `{dataset._dataset_id}`: \n {dataset.data}')
+            logging.info(f'Dataset `{dataset._dataset_id}` updated.')
+            logging.debug(f'Data in dataset `{dataset._dataset_id}`: \n {dataset.data}')
         return
     
     def unregister_dataset(self, identifier: Union[int, str]):
-        dataset_id = _get_dataset_id_from_id_or_name(identifier)
+        dataset_id = self._get_dataset_id_from_id_or_name(identifier)
         
         # remove from registry and the file system
-        del self.metadata['names'][dataset_id]
         os.remove(self.root+f'/data/{dataset_id}.npy')
-        logger.info(f'Dataset with id and name: `{dataset_id}`, `{name}` has been unregistered.')
+        logging.info(
+            f'Dataset with id and name: `{dataset_id}`, `{self.metadata["names"][dataset_id]}` has been unregistered.')
+        del self.metadata['names'][dataset_id]
+        self._save_metadata()
         return
     
     def load_dataset(self, identifier: Union[str, int]):
@@ -154,8 +156,8 @@ class Dataset:
         rep = "Dataset instance"
         if self.name is not None:
             rep = rep + f': `self.name`'
-        rep += '\n'
-        string_data = '\n'.join(list(self.data))
+        rep += '\n\t'
+        string_data = '\n\t'.join(list(self.data))
         rep += string_data
         return rep
     
@@ -227,11 +229,11 @@ class Dataset:
                 cansmiles.append(smiles)
             except:
                 if not self.raise_smiles_errors:
-                    logger.info(f'"{instring}" could not be connonicalized, skipping')
+                    logging.info(f'"{instring}" could not be connonicalized, skipping')
                     pass
                 else:
                     raise ValueError(f'"{instring}" could not be connonicalized')
-        self._data = numpy.array(cansmiles).reshape(-1,1)
+        self._data = numpy.array(cansmiles)
         return
     
     @staticmethod
@@ -246,7 +248,7 @@ class Dataset:
         # load it
         data = numpy.load(path_to_load)
         name = handler.metadata['names'][dataset_id]
-        dataset = cls(data=data, name=name)
+        dataset = cls(data=data, name=name, data_handler=handler)
         return dataset
         
     def _save_data_to_file(self, path: str):
