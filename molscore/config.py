@@ -34,7 +34,6 @@ def _check_config(config: dict):
 def help():
     print(f"""Call update(parameter, new_value) to update config parameters.
     
-    
     Valid parameters:
     {VALID_CONFIG_PARAMETERS}
     """)

@@ -2,7 +2,7 @@ __version__='0.0.1'
 from .config import _initial_config
 
 from .data import Dataset, DataHandler
-
+print(_initial_config)
 
 # Load the user configurations
 def _set_globals(config: dict):
