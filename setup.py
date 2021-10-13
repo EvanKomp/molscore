@@ -37,6 +37,7 @@ if __name__ == "__main__":
         extras_require={
             'tests': [
                 'pytest',
+                'pytest-mock',
                 'coverage',
                 'flake8',
                 'flake8-docstrings'
