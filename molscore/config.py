@@ -20,16 +20,13 @@ def _check_config(config: dict):
         raise TypeError(
             f'Cannot set `DEFAULT_DATABASE_ROOT`, value must be string, not\
  {type(config["DEFAULT_DATABASE_ROOT"])}')
-    if not os.path.exists(
-        '/'.join(
-            config['DEFAULT_DATABASE_ROOT'].split('/')[:-1]
-        )
-    ):
+    if not os.path.exists('/'.join(
+            config['DEFAULT_DATABASE_ROOT'].split('/')[:-1])):
         raise ValueError(
             f'Cannot set database root to {config["DEFAULT_DATABASE_ROOT"]},\
- parent directory does not exist.'
-        )
+ parent directory does not exist.')
     return
+
 
 def help():
     print(f"""Call update(parameter, new_value) to update config parameters.
@@ -37,6 +34,7 @@ def help():
     Valid parameters:
     {VALID_CONFIG_PARAMETERS}
     """)
+
 
 def update(key: str, value):
     """Update a configuration parameter.
@@ -52,19 +50,19 @@ def update(key: str, value):
     file = open(CONFIG_PATH, 'r')
     config = json.load(file)
     file.close()
-    
+
     if key not in list(config.keys()):
         raise ValueError(
             f'`{key}` not a valid config parameter. Parameters available:\n{list(config.keys())}'
         )
     config[key] = value
     _check_config(config)
-    
+
     # now save the new config to file
     file = open(CONFIG_PATH, 'w')
     json.dump(config, file)
     file.close()
-    
+
     # now update the globals used by the package
     molscore._set_globals(config)
     return

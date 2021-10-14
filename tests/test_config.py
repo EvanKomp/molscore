@@ -8,6 +8,7 @@ fake_io_file1 = io.StringIO('{"DEFAULT_DATABASE_ROOT": "./molscore_data"}')
 fake_io_file2 = io.StringIO('')
 fake_io_file2.close = lambda: None
 
+
 def test_local_variables():
     import molscore.config
     """ensure the config variables are initialized"""
@@ -25,7 +26,7 @@ def test__check_config():
     # nothing should happen, eg nothing raised
     good = {'DEFAULT_DATABASE_ROOT': './'}
     molscore.config._check_config(good)
-    
+
     # bad dict, incorrect value
     bad = {'DEFAULT_DATABASE_ROOT': 5}
     with pytest.raises(TypeError):
@@ -36,16 +37,17 @@ def test__check_config():
         molscore.config._check_config(bad)
     return
 
+
 @mock.patch('molscore._set_globals')
 @mock.patch('molscore.config.open', side_effect=[fake_io_file1, fake_io_file2])
 def test_update(mocked_open, mocked_global_setter, working_test_dir):
     import molscore.config
     """Update config without actually doing so."""
-    molscore.config.update('DEFAULT_DATABASE_ROOT', f'{working_test_dir}/new_data')
-    
+    molscore.config.update('DEFAULT_DATABASE_ROOT',
+                           f'{working_test_dir}/new_data')
+
     assert mocked_global_setter.called,\
         """Did not update global variables"""
     assert fake_io_file2.getvalue() == '{"DEFAULT_DATABASE_ROOT": "'+str(working_test_dir)+'/new_data"}',\
         "Did not save to file the new variable"
     return
-    
