@@ -41,7 +41,9 @@ if __name__ == "__main__":
                 'coverage',
                 'flake8',
                 'flake8-docstrings',
-                'yapf'
+                'yapf',
+                'mypy',
+                'typed_ast'
             ],
         },
         classifiers=[

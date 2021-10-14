@@ -39,7 +39,6 @@ jobs:
         yapf -r --diff molscore tests
     - name: type checking
       run: |
-        conda install mypy
         mypy molscore
     - name: Test with pytest and coverage
       run: |
