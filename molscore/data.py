@@ -152,18 +152,18 @@ class DataHandler:
         dataset: Dataset
             dataset to update, must be in the database already
         """
-        if dataset._dataset_id is None or dataset._dataset_id not in self.dataset_ids:
+        if dataset.dataset_id is None or dataset.dataset_id not in self.dataset_ids:
             raise ValueError(f'Cannot update dataset, it is not registered.')
         else:
             dataset._save_data_to_file(
-                self._get_path_to_dataset(dataset._dataset_id))
+                self._get_path_to_dataset(dataset.dataset_id))
             if dataset.name is not None and dataset.name != self.metadata[
-                    'names'][dataset._dataset_id]:
-                self.metadata['names'][dataset._dataset_id] = dataset.name
+                    'names'][dataset.dataset_id]:
+                self.metadata['names'][dataset.dataset_id] = dataset.name
                 self._save_metadata()
-            logging.info(f'Dataset `{dataset._dataset_id}` updated.')
+            logging.info(f'Dataset `{dataset.dataset_id}` updated.')
             logging.debug(
-                f'Data in dataset `{dataset._dataset_id}`: \n {dataset.data}')
+                f'Data in dataset `{dataset.dataset_id}`: \n {dataset.data}')
         return
 
     def unregister_dataset(self, identifier: Union[int, str]):
@@ -178,7 +178,7 @@ class DataHandler:
         identifier: int or str
             The dataset id or dataset name to remove.
         """
-        dataset_id = self._get_dataset_id_from_id_or_name(identifier)
+        dataset_id = self._getdataset_id_from_id_or_name(identifier)
 
         # remove from registry and the file system
         os.remove(self.root + f'/data/{dataset_id}.npy')
@@ -204,7 +204,7 @@ class DataHandler:
         dataset = Dataset.load(self, identifier)
         return dataset
 
-    def _get_dataset_id_from_id_or_name(self, identifier: Union[str, int]):
+    def _getdataset_id_from_id_or_name(self, identifier: Union[str, int]):
         """Searches the database for a dataset id.
         
         Looks first in ids, then in names, and if it finds a dataset,
@@ -301,13 +301,24 @@ class Dataset:
         self.raise_smiles_errors = raise_smiles_errors
         self.data = data
         return
+    
+    @property
+    def dataset_id(self):
+        """int: the id of this dataset"""
+        return self._dataset_id
+
+    @datset_id.setter
+    def dataset_id(self, new_id):
+        new_id = int(new_id)
+        self._dataset_id = new_id
+        return
 
     def register(self):
         """Register this dataset to filesystem.
         
         Uses the handler assigned to this instance.
         """
-        self._dataset_id = self.handler.register_dataset(self)
+        self.dataset_id = self.handler.register_dataset(self)
         return
 
     def update(self):
@@ -323,7 +334,7 @@ class Dataset:
         
         Uses the handler assigned to this instance.
         """
-        self.handler.unregister_dataset(self._dataset_id)
+        self.handler.unregister_dataset(self.dataset_id)
         return
 
     @property
@@ -396,8 +407,8 @@ class Dataset:
         Dataset: the loaded dataset
         """
         # get the info on the dataset
-        dataset_id = handler._get_dataset_id_from_id_or_name(identifier)
-        path_to_load = handler._get_path_to_dataset(identifier)
+        dataset_id = handler._getdataset_id_from_id_or_name(identifier)
+        path_to_load = handler._get_path_to_dataset(dataset_id)
         # load it
         data = numpy.load(path_to_load)
         name = handler.metadata['names'][dataset_id]

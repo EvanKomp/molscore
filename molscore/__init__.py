@@ -3,7 +3,7 @@ from .config import _initial_config
 
 from .data import Dataset, DataHandler
 
-print(_initial_config)
+DEFAULT_DATABASE_ROOT = 'None'
 
 
 # Load the user configurations
