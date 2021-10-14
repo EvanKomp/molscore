@@ -307,7 +307,7 @@ class Dataset:
         """int: the id of this dataset"""
         return self._dataset_id
 
-    @datset_id.setter
+    @dataset_id.setter
     def dataset_id(self, new_id):
         new_id = int(new_id)
         self._dataset_id = new_id
