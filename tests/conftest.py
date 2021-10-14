@@ -1,3 +1,5 @@
+import json
+import os
 import pytest
 import tempfile
 
@@ -11,14 +13,22 @@ def working_test_dir():
     return
 
 @pytest.fixture(scope='session', autouse=True)
-def patched_config_file(working_test_dir, session_mocker):
-    print(working_test_dir)
-    file = open(working_test_dir+'/config.json', 'w')
-    file.write('\{"DEFAULT_DATABASE_ROOT": "'+str(working_test_dir)+'/data"\}')
+def patched_config_file(working_test_dir):
+    
+    # now we have to manually modify the config file and replace it later
+    this_dir, this_filename = os.path.split(__file__)
+    config_path = os.path.join(this_dir, "../molscore/config.json")
+    file = open(config_path, 'r')
+    config_save = json.load(file)
     file.close()
     
-    # patch this path to the package path
-    session_mocker.patch('molscore.config.CONFIG_PATH', working_test_dir+'/config.json')
-    session_mocker.patch('molscore._initial_config', {"DEFAULT_DATABASE_ROOT": f"{working_test_dir}/data"})
+    file = open(config_path, 'w')
+    file.write('{"DEFAULT_DATABASE_ROOT": "'+str(working_test_dir)+'/data"}')
+    file.close()
+    yield None
+    # now we have to save the old one back
+    file = open(config_path, 'w')
+    json.dump(config_save, file)
+    file.close()
     return 
     
