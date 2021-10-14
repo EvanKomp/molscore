@@ -44,7 +44,7 @@ class DataHandler:
     """
     def __init__(self, root: str = './molscore_data', restart: bool = False):
         # ensure no slash to save hassle later
-        # raise BaseException('ran handler')
+        raise BaseException('ran handler')
         if root.endswith('/'):
             root = root[:-1]
         self.root = root
