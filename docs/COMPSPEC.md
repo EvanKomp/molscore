@@ -58,9 +58,7 @@ __Attributes__
 `molscore.analyze.Scorer`
 
 Compare mapped datasets
-
-*Inputs*: Datasets to use, maps to use
-
+*Inputs*: maps to use as reference
 __Methods__
-- `score_breadth`: returns the breadth score
-- `
+- `score_breadth`: returns the breadth score for a 
+- `score_depth`: returns the depth score for a dataset
