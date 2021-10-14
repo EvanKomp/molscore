@@ -40,7 +40,8 @@ if __name__ == "__main__":
                 'pytest-mock',
                 'coverage',
                 'flake8',
-                'flake8-docstrings'
+                'flake8-docstrings',
+                'yapf'
             ],
         },
         classifiers=[
