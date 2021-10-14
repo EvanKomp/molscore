@@ -301,7 +301,7 @@ class Dataset:
         self.raise_smiles_errors = raise_smiles_errors
         self.data = data
         return
-    
+
     @property
     def dataset_id(self):
         """int: the id of this dataset"""
