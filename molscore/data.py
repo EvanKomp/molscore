@@ -57,6 +57,7 @@ class DataHandler:
         elif not self.initialized:
             self._initialize()
         else:
+            print(self.root + '/metadata.json')
             file = open(self.root + '/metadata.json', 'r')
             self.metadata = json.load(file)
             file.close()

@@ -35,6 +35,13 @@ class TestDataHandler:
         handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
         assert not os.path.exists(working_test_dir+'/root/data/tmp.txt'),\
             "Restart did not delete old data."
+        
+        # see if it will load back up
+        handler.metadata['thing'] = 1
+        handler._save_metadata()
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root')
+        assert 'thing' in handler.metadata,\
+            "Did not load metadata from previously"
         return
     
     def test__initialize(self, working_test_dir):
@@ -52,7 +59,7 @@ class TestDataHandler:
     @mock.patch('molscore.data.DataHandler._save_metadata')
     def test_register_dataset(self, mocked_metadata_saver, working_test_dir, DATASET):
         import molscore.data
-        handler = molscore.data.DataHandler(root=working_test_dir+'/root')
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
         DATASET.name = 'a set'
         handler.register_dataset(DATASET)
         assert  DATASET.dataset_id == 0,\
@@ -72,7 +79,7 @@ class TestDataHandler:
     @mock.patch('molscore.data.DataHandler._save_metadata')
     def test_update_dataset(self, mocked_metadata_saver, working_test_dir, DATASET):
         import molscore.data
-        handler = molscore.data.DataHandler(root=working_test_dir+'/root')
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
         DATASET.name = 'a set'
         handler.register_dataset(DATASET)
         mocked_metadata_saver.reset_mock()
@@ -93,3 +100,58 @@ class TestDataHandler:
         with pytest.raises(ValueError):
             handler.update_dataset(DATASET)
         return
+    
+    @mock.patch('molscore.data.DataHandler._save_metadata')
+    def test_unregister_dataset(self, mocked_metadata_saver, working_test_dir, DATASET):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
+        DATASET.name = 'a set'
+        handler.register_dataset(DATASET)
+        mocked_metadata_saver.reset_mock()
+        
+        # just unregister it and check
+        handler.unregister_dataset(0)
+        assert mocked_metadata_saver.called,\
+            "Save metadata not called"
+        assert len(handler.metadata['names']) == 0,\
+            "dataset was not removed from metadata"
+        assert not os.path.exists(working_test_dir+'/root/data/0.npy'),\
+            "dataset was not removed from disk"
+        return
+    
+    @mock.patch('molscore.data.Dataset.load')
+    def test_load_dataset(self, mocked_loader, working_test_dir, DATASET):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
+        DATASET.name = 'a set'
+        handler.register_dataset(DATASET)
+
+        dataset = handler.load_dataset('a set')
+        assert mocked_loader.calledwith('a set'),\
+            "Did not call loader"
+        return
+    
+    def test_hidden_methods(self, working_test_dir, DATASET):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
+        print(handler.metadata)
+        DATASET.name = 'a name'
+        handler.register_dataset(DATASET)
+        
+        # getting id from name or id
+        assert handler._getdataset_id_from_id_or_name(0) == 0,\
+            "cannot get id from id"
+        assert handler._getdataset_id_from_id_or_name('a name') == 0,\
+            "cannot get id from name"
+        
+        # get the path from id
+        assert handler._get_path_to_dataset(0) == working_test_dir+'/root/data/0.npy',\
+            "wrong path returned"
+        
+        #saving metadata
+        os.remove(working_test_dir+'/root/metadata.json')
+        handler._save_metadata()
+        assert os.path.exists(working_test_dir+'/root/metadata.json'),\
+            "Did not save metadata"
+        return
+        
