@@ -110,10 +110,6 @@ class DataHandler:
         ----------
         dataset: Dataset
             The dataset to register.
-            
-        Returns
-        -------
-        int: the dataset id
         """
         # get newest id to assign to data
         if len(self.dataset_ids) < 1:
@@ -138,11 +134,12 @@ class DataHandler:
         # update metadata
         dataset._save_data_to_file(self._get_path_to_dataset(dataset_id))
         self.metadata['names'][dataset_id] = name
+        dataset.dataset_id = dataset_id
         logging.info(
             f'Dataset registered with id and name: `{dataset_id}`, `{name}`.')
         logging.debug(f'Data in dataset `{dataset_id}`: \n {dataset.data}')
         self._save_metadata()
-        return dataset_id
+        return
 
     def update_dataset(self, dataset: Dataset):
         """Update a specified dataset's info in the filesystem.
@@ -318,7 +315,7 @@ class Dataset:
         
         Uses the handler assigned to this instance.
         """
-        self.dataset_id = self.handler.register_dataset(self)
+        self.handler.register_dataset(self)
         return
 
     def update(self):
