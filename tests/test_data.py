@@ -155,3 +155,63 @@ class TestDataHandler:
             "Did not save metadata"
         return
         
+        
+class TestDataset:
+    
+    def test___init__(self, working_test_dir):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
+        
+        dataset = molscore.data.Dataset(
+            ['C', 'CC'],
+            data_handler=handler,
+            name='name')
+        assert len(dataset.data) == 2, "did not store data"
+        assert dataset.handler is handler, "not using correct handler"
+        assert dataset.name == 'name'
+        
+        # now check default handler
+        dataset = molscore.data.Dataset(
+            ['C', 'CC'])
+        assert dataset.handler is dataset.get_default_handler() is molscore.DEFAULT_HANDLER,\
+            "Did not use default handler"
+        return
+    
+    @mock.patch('molscore.data.DataHandler.register_dataset')
+    def test_register(self, mocked_register, working_test_dir, DATASET):
+        import molscore.data
+        DATASET.register()
+        mocked_register.assert_called_with(DATASET)
+        return
+    
+    @mock.patch('molscore.data.DataHandler.update_dataset')
+    def test_update(self, mocked_update, working_test_dir, DATASET):
+        import molscore.data
+        DATASET.register()
+        DATASET.update()
+        mocked_update.assert_called_with(DATASET)
+        return
+    
+    @mock.patch('molscore.data.DataHandler.unregister_dataset')
+    def test_unregister(self, mocked_unregister, working_test_dir, DATASET):
+        import molscore.data
+        DATASET.register()
+        DATASET.unregister()
+        mocked_unregister.assert_called_with(DATASET.dataset_id)
+        return
+    
+    def test_load(self, working_test_dir, DATASET):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root', restart=True)
+        DATASET.handler = handler
+        DATASET.register()
+        new_dataset = molscore.data.Dataset.load(handler, 0)  
+        assert new_dataset == DATASET,\
+            "loaded dataset is not the same"
+        return
+    
+    def test__save_data_to_file(self, working_test_dir, DATASET):
+        DATASET._save_data_to_file(working_test_dir+'/test.npy')
+        assert os.path.exists(working_test_dir+'/test.npy'),\
+            "Did not save data array"
+        return

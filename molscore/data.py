@@ -270,7 +270,7 @@ class Dataset:
         Whether to raise errors when canonicalization fails. If False, skip
         failures.
     """
-    def __str__(self):
+    def __repr__(self):
         rep = "Dataset instance"
         if self.name is not None:
             rep = rep + f': `self.name`'
@@ -278,6 +278,15 @@ class Dataset:
         string_data = '\n\t'.join(list(self.data))
         rep += string_data
         return rep
+    
+    def __eq__(self, other):
+        dataset_id = self.dataset_id == other.dataset_id
+        name = self.name == other.name
+        data = all(self.data == other.data)
+        if dataset_id and name and data:
+            return True
+        else:
+            return False
 
     def __init__(self,
                  data: Iterable[str],
@@ -410,7 +419,10 @@ class Dataset:
         # load it
         data = numpy.load(path_to_load)
         name = handler.metadata['names'][dataset_id]
+        if type(name) is not str:
+            name = None
         dataset = cls(data=data, name=name, data_handler=handler)
+        dataset.dataset_id = dataset_id
         return dataset
 
     def _save_data_to_file(self, path: str):
