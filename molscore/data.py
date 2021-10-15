@@ -278,7 +278,7 @@ class Dataset:
         string_data = '\n\t'.join(list(self.data))
         rep += string_data
         return rep
-    
+
     def __eq__(self, other):
         dataset_id = self.dataset_id == other.dataset_id
         name = self.name == other.name
