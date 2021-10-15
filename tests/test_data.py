@@ -1,4 +1,5 @@
 """This module handles saving, retrieving, and organizing data."""
+import numpy as np
 import os
 import pytest
 import shutil
@@ -53,14 +54,42 @@ class TestDataHandler:
         import molscore.data
         handler = molscore.data.DataHandler(root=working_test_dir+'/root')
         DATASET.name = 'a set'
-        assert handler.register_dataset(DATASET) == 0,\
+        handler.register_dataset(DATASET)
+        assert  DATASET.dataset_id == 0,\
             "Incorrect first dataset id returned"
         DATASET.name = None
         mocked_metadata_saver.reset_mock()
-        assert handler.register_dataset(DATASET) == 1,\
+        handler.register_dataset(DATASET)
+        assert DATASET.dataset_id == 1,\
             "Incorrect second dataset id returned"
         assert handler.metadata['names'] == {0: 'a set', 1: 1},\
             "register not recorded in metadata"
         assert mocked_metadata_saver.called,\
             "Save metadata not called"
+        assert os.path.exists(working_test_dir+'/root/data/0.npy')
+        return
+    
+    @mock.patch('molscore.data.DataHandler._save_metadata')
+    def test_update_dataset(self, mocked_metadata_saver, working_test_dir, DATASET):
+        import molscore.data
+        handler = molscore.data.DataHandler(root=working_test_dir+'/root')
+        DATASET.name = 'a set'
+        handler.register_dataset(DATASET)
+        mocked_metadata_saver.reset_mock()
+        
+        # rename and change data to resave
+        DATASET.name = 'new name'
+        DATASET.data = np.append(DATASET.data, ['CCC'])
+        handler.update_dataset(DATASET)
+        assert mocked_metadata_saver.called,\
+            "Save metadata not called"
+        assert handler.metadata['names'][0] == 'new name',\
+            "New name not saved"
+        assert len(np.load(working_test_dir+'/root/data/0.npy')) == 3,\
+            "New data not saved"
+        
+        # see if it can catch not a registered dataset
+        DATASET._dataset_id = None
+        with pytest.raises(ValueError):
+            handler.update_dataset(DATASET)
         return
