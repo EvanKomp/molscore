@@ -43,7 +43,7 @@ jobs:
     - name: Test with pytest and coverage
       run: |
         conda install pytest coverage
-        coverage run --source="molscore" --omit="molscore/tests/*" -m pytest
+        coverage run --source="molscore" --omit="molscore" -m pytest tests
     - name: Get coverage report
       run: |
         coverage report
